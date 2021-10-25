@@ -107,6 +107,8 @@ def ip_addr(value) -> (str, Tuple[str, int]):
         )
 
     components = list(components)
+    if not components[0]:
+        components[0] = "127.0.0.1"
     components[1] = int(components[1])
 
     return tuple(components)
