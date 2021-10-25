@@ -18,7 +18,7 @@ SELECT_TIMEOUT_SECS = 0.100
 
 
 class Sniffer:
-    def __init__(self, target_addr: Tuple[str, int], listen_addr: Tuple[str, int]):
+    def __init__(self, target_addr: Tuple[str, int], listen_addr: Tuple[str, int], colorize:bool=False):
         self.target_addr = target_addr
         self.listen_addr = listen_addr
         self._running = True
@@ -27,7 +27,7 @@ class Sniffer:
         )
 
         def accept_connection(sock, addr):
-            ret = proxy.GDBProxy(self.target_addr)
+            ret = proxy.GDBProxy(self.target_addr, colorize)
             ret.set_connection(sock, addr)
             return ret
 
@@ -84,7 +84,7 @@ def main(args):
 
     logger.debug("Startup")
 
-    sniffer = Sniffer(args.target, (args.listen_ip, args.listen_port))
+    sniffer = Sniffer(args.target, (args.listen_ip, args.listen_port), args.color)
     sniffer.run()
 
     print("Enter 'quit' or 'exit' to shut down.")
