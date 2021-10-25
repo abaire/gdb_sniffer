@@ -37,10 +37,6 @@ class GDBProxy(ip_transport.IPTransport):
         self._gdb_read_buffer: bytearray = bytearray()
         self._target_read_buffer: bytearray = bytearray()
 
-        # self._dispatch_table: Mapping[
-        #     str, Callable[[GDBPacket], None]
-        # ] = self._build_dispatch_table(self)
-
     def set_connection(self, sock, addr):
         super().set_connection(sock, addr)
 
