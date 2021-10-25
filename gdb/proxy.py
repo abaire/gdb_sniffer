@@ -28,8 +28,8 @@ class GDBProxy(ip_transport.IPTransport):
 
         self._target: Optional[ip_transport.IPTransport] = None
         if colorize:
-            self.target_color = "\x1b[34m"
-            self.gdb_color = "\x1b[30m"
+            self.target_color = "\x1b[34m\x1b[47m"
+            self.gdb_color = "\x1b[30m\x1b[47m"
         else:
             self.target_color = ""
             self.gdb_color = ""
@@ -140,7 +140,10 @@ class GDBProxy(ip_transport.IPTransport):
                 break
             total_bytes_consumed += bytes_consumed
 
-            logger.info(f"{log_prefix} Received packet {pkt}")
+            if pkt.data:
+                logger.info(f"{log_prefix} Received packet {pkt}")
+            else:
+                logger.info(f"{log_prefix} Received empty packet")
             logger.debug(
                 f"{log_prefix} After processing: [{len(buffer)}] {buffer.hex()}"
             )
