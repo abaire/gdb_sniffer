@@ -37,6 +37,12 @@ class Sniffer:
         self._thread.start()
 
     def _thread_main(self):
+        listen_addr = self._listener.addr
+        if listen_addr[0] == "0.0.0.0":
+            print(f"Listening at :{listen_addr[1]}")
+        else:
+            print(f"Listening at {listen_addr[0]}:{listen_addr[1]}")
+
         while self._running:
             readable = []
             writable = []
