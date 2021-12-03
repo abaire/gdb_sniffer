@@ -112,30 +112,36 @@ class GDBProxy(ip_transport.IPTransport):
 
         buffer_len = len(buffer)
         while total_bytes_consumed < buffer_len:
-            if buffer[total_bytes_consumed] == ord("+"):
+            if buffer[0] == ord("+"):
                 if self.log_acks:
-                    logger.info(f"{log_prefix}: ack")
+                    logger.info(f"{log_prefix} <<ack>>")
                 total_bytes_consumed += 1
+                buffer = buffer[1:]
                 continue
 
-            if buffer[total_bytes_consumed] == ord("-"):
+            if buffer[0] == ord("-"):
                 if self.log_acks:
-                    logger.info(f"{log_prefix}: nack")
+                    logger.info(f"{log_prefix} <<nack>>")
                 total_bytes_consumed += 1
+                buffer = buffer[1:]
                 continue
 
-            if buffer[total_bytes_consumed] == 0x03:
-                logger.info(f"{log_prefix}: Interrupt request")
+            if buffer[0] == 0x03:
+                logger.info(f"{log_prefix} <<Interrupt request>>")
                 total_bytes_consumed += 1
+                buffer = buffer[1:]
                 continue
 
-            leader = buffer[total_bytes_consumed:].find(GDBPacket.PACKET_LEADER)
+            leader = buffer.find(GDBPacket.PACKET_LEADER)
             if leader > 0:
                 logger.warning(
-                    f"{log_prefix} Skipping {leader} non-leader bytes {buffer[total_bytes_consumed:total_bytes_consumed + leader].hex()}"
+                    f"{log_prefix} Skipping {leader} non-leader bytes {buffer[:total_bytes_consumed + leader]}"
                 )
+                buffer = buffer[leader:]
 
-            bytes_consumed = pkt.parse(buffer[leader:])
+            bytes_consumed = pkt.parse(buffer)
+            buffer = buffer[bytes_consumed:]
+
             if not bytes_consumed:
                 break
             total_bytes_consumed += bytes_consumed
@@ -144,8 +150,9 @@ class GDBProxy(ip_transport.IPTransport):
                 logger.info(f"{log_prefix} Received packet {pkt}")
             else:
                 logger.info(f"{log_prefix} Received empty packet")
-            logger.debug(
-                f"{log_prefix} After processing: [{len(buffer)}] {buffer.hex()}"
-            )
+            if len(buffer):
+                logger.debug(
+                    f"{log_prefix} After processing: [{len(buffer)}] {buffer}"
+                )
 
         return total_bytes_consumed

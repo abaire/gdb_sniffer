@@ -28,6 +28,7 @@ class Sniffer:
 
         def accept_connection(sock, addr):
             ret = proxy.GDBProxy(self.target_addr, colorize)
+            ret.log_acks = True
             ret.set_connection(sock, addr)
             return ret
 
